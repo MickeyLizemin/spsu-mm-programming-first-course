@@ -20,23 +20,21 @@ int greatestCommonDivisor(int number1, int number2)
 
 int main()
 {
-	int array[3];
-	int counter;
-	int temporary;
+	int array[3], counter, temporary;
 	int x, y, z;
 
 	printf("Enter three natural numbers that you want to check for the formation of the Pythagorean triple:\n");
 
 	for(counter = 0; counter < 3; counter++)
 	{
-		scanf("%d", &array[counter]);
-		
-		if(array[counter] <= 0)
+		char end_of_line = 0;
+
+		if(scanf("%d%c", &array[counter], &end_of_line) != 2 || end_of_line != '\n')
 		{
-			printf("The last number you entered is incorrect.\nTry entering all the numbers again, making sure they are correct.\n");
-			scanf("%*[^\n]");
-			counter = 0;
-		}
+			printf("The last data you entered is incorrect.\nPlease check it for correctness and re-enter.\n");
+			scanf("%*[^\n]");				
+			counter--;
+		}	
 	}
 
 	for(counter = 0; counter < 2; counter++)
