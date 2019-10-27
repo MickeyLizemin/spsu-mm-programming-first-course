@@ -29,12 +29,12 @@ int main()
 	{
 		char end_of_line = 0;
 
-		if(scanf("%d%c", &array[counter], &end_of_line) != 2 || end_of_line != '\n')
+		if(scanf("%d%c", &array[counter], &end_of_line) != 2 || end_of_line != '\n' || array[counter] < 1)
 		{
 			printf("The last data you entered is incorrect.\nPlease check it for correctness and re-enter.\n");
-			scanf("%*[^\n]");				
+			fseek(stdin, 0, SEEK_END);
 			counter--;
-		}	
+		}
 	}
 
 	for(counter = 0; counter < 2; counter++)
