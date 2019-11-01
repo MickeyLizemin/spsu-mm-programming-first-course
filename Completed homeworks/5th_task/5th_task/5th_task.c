@@ -4,8 +4,8 @@
 
 int main()
 {
-	int secure_input_counter;
-	double secure_input[1], number;
+	int secure_input_counter, number;
+	double secure_input[1];
 
 	printf("Enter the natural number whose square root you want to explore\nfrom (this number should not be the square of any integer):\n");
 
@@ -22,27 +22,29 @@ int main()
 			secure_input_counter--;
 		}
 	}
+
+	number = secure_input[0];
+
+	int continued_fraction_element, period = 0, whole_part, numerator = 1, denominator = 0;
 	
-	number = sqrt((int) secure_input[0]);
-
-	int chain_fraction_element, period = 0;
-	double fraction;
-
-	fraction = number - (int) number;
-	printf("The elements of the continued fraction are:\n%d ( ", (int) number);
+	whole_part = sqrt(number);
+	printf("The elements of the continued fraction are:\n%d ( ", whole_part);
 
 	while(1)
 	{
-		chain_fraction_element = (int) (1 / fraction);
+		continued_fraction_element = whole_part - denominator;
+		denominator = whole_part + continued_fraction_element;
+		numerator = (number - continued_fraction_element * continued_fraction_element) / numerator;
+		continued_fraction_element = denominator / numerator;
 		period++;
-		printf("%d ", chain_fraction_element);
+		printf("%d ", continued_fraction_element);
 
-		if(chain_fraction_element == 2 * (int) number)
+		if(continued_fraction_element == 2 * whole_part)
 		{
 			break;
 		}
 
-		fraction = (1 / fraction) - chain_fraction_element;
+		denominator = denominator % numerator;
 	}
 
 	printf(")\nElements in (...) of this continued fraction are repeated with a period %d.\n", period);
