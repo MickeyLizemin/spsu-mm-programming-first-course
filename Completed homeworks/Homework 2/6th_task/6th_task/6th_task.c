@@ -5,9 +5,6 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#define S_IWRITE 0x0080 //Instead of connecting a separate <io.h> library
-#define MAXLINE 4096
-
 int ccmp(const void* p1, const void* p2)
 {
 	const char* s1;
@@ -23,10 +20,7 @@ int main()
 	int flin, flout, flin_size;
 	char* flin_mapped;
 	struct stat flin_info;
-
-	char* lineptr[MAXLINE];
-	char str[MAXLINE];
-	int i, k, nl, d, j, t;
+	int i, k, len, j, maxline, m, u;
 
 	flin = _open("input.txt", O_RDWR, 0);
 	flout = _open("output.txt", O_WRONLY | O_CREAT | O_TRUNC, S_IWRITE);
@@ -40,7 +34,38 @@ int main()
 	fstat(flin, &flin_info);
 	flin_size = flin_info.st_size;
 	flin_mapped = mmap(0, flin_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, flin, 0);
-	d = strlen(flin_mapped);
+	len = strlen(flin_mapped);
+	u = 0;
+	m = 0;
+	maxline = 0;
+
+	for (i = 0; i < len; i++)
+	{
+		if (flin_mapped[i] != '\n')
+		{
+			m++;
+
+			if (m > maxline)
+			{
+				maxline = m;
+			}
+		}
+		else
+		{
+			m++;
+			u++;
+
+			if (m > maxline)
+			{
+				maxline = m;
+			}
+
+			m = 0;
+		}
+	}
+
+	char** lineptr = (char**)malloc(u * sizeof(char*));
+	char* str = (char*)malloc(maxline * sizeof(char));
 
 	if (flin_mapped == MAP_FAILED)
 	{
@@ -50,11 +75,11 @@ int main()
 
 	k = 0;
 
-	for (i = 0; i < MAXLINE; )
+	for (i = 0; i < u; )
 	{
 		j = 0;
 
-		while (k < d)
+		while (k < len)
 		{
 			if (flin_mapped[k] == '\n')
 			{
@@ -69,40 +94,36 @@ int main()
 			k++;
 		}
 
-		if (k == d)
+		lineptr[i++] = _strdup(str);
+
+		if (k == len)
 		{
 			break;
 		}
-
-		lineptr[i++] = _strdup(str);
 	}
 
-	nl = i;
-	qsort(lineptr, nl, sizeof(char*), ccmp);
-	t = 0;
+	qsort(lineptr, u, sizeof(char*), ccmp);
 
-	for (i = 0; i < nl; i++)
+	/*for (i = 0; i < u; i++)
 	{
 		char* tmp = lineptr[i];
 
 		while (*tmp != '\n')
 		{
-			t++;
 			//printf("%c", *lineptr[i]);
 			tmp++;
 		}
 
 		if (*tmp == '\n')
 		{
-			t++;
 			//printf("%c", *lineptr[i]);
 		}
-	}
+	}*/
 
-	char* flout_mapped = (char**)malloc(t * sizeof(char*));
+	char* flout_mapped = (char*)malloc(len * sizeof(char*));
 	k = 0;
 
-	for (i = 0; i < nl; i++)
+	for (i = 0; i < u; i++)
 	{
 		char* tmp = lineptr[i];
 
@@ -122,9 +143,11 @@ int main()
 		free(lineptr[i]);
 	}
 
-	_write(flout, flout_mapped, t);
-	munmap(flin_mapped, d);
+	_write(flout, flout_mapped, len);
+	munmap(flin_mapped, len);
 	free(flout_mapped);
+	free(lineptr);
+	free(str);
 	_close(flin);
 	_close(flout);
 	return(0);
